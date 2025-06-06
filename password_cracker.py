@@ -31,7 +31,7 @@ def chunk_prefixes(charset, num_chunks):
 
 def parallel_brute_force_crack(target, charset, max_length):
     num_workers = cpu_count()
-    print(f"Brute-forcing with {num_workers} workers, charset size {len(charset)} and target length {max_length}...")
+    print(f"Brute-forcing with {num_workers} workers, charset size {len(charset)} and target length {max_length}")
 
     ctx = get_context("spawn")
     start_time = time.time()
