@@ -19,3 +19,5 @@ def colorful_loading_bar(total=50, delay=0.1):
     print("\nDone!")
 
 colorful_loading_bar()
+
+colorful_loading_bar(100, 0.05)  # Example usage with a longer bar and shorter delay
