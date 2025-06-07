@@ -1,6 +1,4 @@
-import os
-import string
-import time
+import os, time, string
 from datetime import datetime
 
 try:
@@ -146,8 +144,8 @@ if __name__ == "__main__":
         print(Style.GREEN + f"Using charset: {charset}" + Style.RESET)
         max_length_input = input(Style.CYAN + f"Max password length (default: {len(target)}): " + Style.RESET).strip()
         max_length = int(max_length_input) if max_length_input else len(target)
-        batch_size_input = input(Style.MAGENTA + f"Batch size (auto for blank): " + Style.RESET).strip()
-        batch_size = int(batch_size_input) if batch_size_input else None
+        batch_size_input = input(Style.MAGENTA + f"Batch size (auto for blank, a batch size is the amount of GPU kernels running simultaneously): " + Style.RESET).strip()
+        batch_size = int(batch_size_input) if batch_size_input else 10000_000  # Default batch size
         gpu_brute_force_crack(target, charset, max_length, batch_size)
     except KeyboardInterrupt:
         print(Style.RED + "\nExiting due to keyboard interrupt." + Style.RESET)
