@@ -51,6 +51,18 @@ python gpu_cracker.py
 - Requires a supported NVIDIA GPU and CuPy. 🖥️
 - Progress and results are displayed and logged. 📈
 
+### 3. Password Generator
+
+In the folder there is a file called ```password_cracker.py``` and this is credited to @Takadoo75
+
+```bash
+python password_cracker.py
+```
+
+- Decrypt and encrypt a password file using hex
+- Test password strength
+- Generate password
+
 ---
 
 ## Notes 📝
@@ -73,6 +85,6 @@ This tool is intended for legal, ethical, and educational use only. The authors 
 ## Credits
 
 - @MEGA-COOKIE-MONSTER for coding it.
-- @Takadoo75 for inspiring me to build it.
+- @Takadoo75 for inspiring me to build it and for the password generator file.
 
 # Have Fun! 🎉 - LaDoodleInTheHat / Takadoo75
