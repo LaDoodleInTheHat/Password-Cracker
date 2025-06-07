@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 
 try:
-    import cupy as cp
+    import cupy as cp # type: ignore
 except ImportError:
     print("CuPy is not installed. Please install it with 'pip install cupy-cuda11x' for your CUDA version.")
     exit(1)
