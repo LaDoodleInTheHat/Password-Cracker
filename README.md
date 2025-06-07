@@ -56,7 +56,7 @@ python gpu_cracker.py
 In the folder there is a file called ```password_generator.py``` and this is credited to @Takadoo75
 
 ```bash
-python password_cracker.py
+python password_generator.py
 ```
 
 - Decrypt and encrypt a password file using hex
