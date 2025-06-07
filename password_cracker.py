@@ -2,6 +2,13 @@ import itertools, os, string, time
 from multiprocessing import Pool, cpu_count, get_context
 from datetime import datetime
 
+# This script performs a brute-force password cracking simulation using multiprocessing.
+# It tries all possible combinations of characters up to the length of the target password.
+# The workload is split among available CPU cores for faster processing.
+# Progress, speed, and attempts are displayed in real-time with colored output.
+# Results are logged to a file upon success.
+
+
 class style():
     BLACK = '\033[30m'
     RED = '\033[31m'
