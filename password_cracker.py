@@ -123,6 +123,7 @@ def log_results(password, attempts, elapsed, speed):
 
 if __name__ == "__main__":
     try:
+        print(style.YELLOW + "-- CPU Password Cracker -- \n" + style.RESET)
         target = input(style.BLUE + "\nEnter the password to crack for simulation (slow for 8+ digits): " + style.RESET).strip()
         charset = ''.join(s for s in [string.ascii_lowercase, string.ascii_uppercase, string.digits, string.punctuation, ' '] if any(c in s for c in target))
         print(style.GREEN + f"Detected charset: {charset}" + style.RESET)
@@ -130,3 +131,5 @@ if __name__ == "__main__":
         parallel_brute_force_crack(target, charset, max_length)
     except KeyboardInterrupt:
         print(style.RED + "\nExiting due to keyboard interrupt." + style.RESET)
+    except Exception as e:
+        print(style.RED + f"\nAn error occurred: {e}" + style.RESET)

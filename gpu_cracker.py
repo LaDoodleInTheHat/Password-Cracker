@@ -77,21 +77,6 @@ def print_progress_bar(total_attempts, speed, percent, bar_total=40):
     bar = green_part + red_part + '\033[0m'
     print(f"\r {Style.YELLOW}Attempts: {Style.WHITE}{Style.UNDERLINE}{total_attempts}{Style.RESET} |  {Style.CYAN}Speed: {Style.WHITE}{Style.UNDERLINE}{speed:.2f}/s{Style.RESET} | {Style.MAGENTA}Progress: {Style.WHITE}{Style.UNDERLINE}{percent:.2f}%{Style.RESET} | {bar}", end="")
 
-def detect_charset(target, user_charset=None):
-    if user_charset:
-        return user_charset
-    charsets = [
-        string.ascii_lowercase,
-        string.ascii_uppercase,
-        string.digits,
-        string.punctuation,
-        ' '
-    ]
-    detected = ''.join(s for s in charsets if any(c in s for c in target))
-    if not detected:
-        detected = string.printable.strip()  # Fallback to all printable
-    return detected
-
 def gpu_brute_force_crack(target, charset, max_length, batch_size=None, progress_update_interval=0.5):
     target_gpu = cp.array([ord(c) for c in target], dtype=cp.uint8)
     start_time = time.time()
@@ -138,14 +123,17 @@ def gpu_brute_force_crack(target, charset, max_length, batch_size=None, progress
 if __name__ == "__main__":
     try:
         print(Style.BLUE + "\n--- GPU Password Cracker ---" + Style.RESET)
+
         target = input(Style.BLUE + "\nEnter the password to crack for simulation (slow for 8+ digits): " + Style.RESET).strip()
-        user_charset = input(Style.YELLOW + "Custom charset (leave blank to auto-detect): " + Style.RESET).strip()
-        charset = detect_charset(target, user_charset if user_charset else None)
+        charset = ''.join(s for s in [string.ascii_lowercase, string.ascii_uppercase, string.digits, string.punctuation, ' '] if any(c in s for c in target))
+
         print(Style.GREEN + f"Using charset: {charset}" + Style.RESET)
-        max_length_input = input(Style.CYAN + f"Max password length (default: {len(target)}): " + Style.RESET).strip()
-        max_length = int(max_length_input) if max_length_input else len(target)
+
+        max_length =  len(target)
+
         batch_size_input = input(Style.MAGENTA + f"Batch size (auto for blank, a batch size is the amount of GPU kernels running simultaneously): " + Style.RESET).strip()
-        batch_size = int(batch_size_input) if batch_size_input else 10000_000  # Default batch size
+        batch_size = int(batch_size_input) if batch_size_input else 1_000_000  # Default batch size
+        
         gpu_brute_force_crack(target, charset, max_length, batch_size)
     except KeyboardInterrupt:
         print(Style.RED + "\nExiting due to keyboard interrupt." + Style.RESET)
