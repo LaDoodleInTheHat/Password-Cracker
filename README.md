@@ -70,9 +70,9 @@ This tool is intended for legal, ethical, and educational use only. The authors 
 
 ---
 
-<!-- ## Credits
+## Credits
 
 - @MEGA-COOKIE-MONSTER for coding it.
 - @Takadoo75 for inspiring me to build it.
 
-# Have Fun! 🎉 - LaDoodleInTheHat / Takadoo75 -->
+# Have Fun! 🎉 - LaDoodleInTheHat / Takadoo75
