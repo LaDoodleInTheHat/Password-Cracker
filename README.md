@@ -53,7 +53,7 @@ python gpu_cracker.py
 
 ### 3. Password Generator
 
-In the folder there is a file called ```password_cracker.py``` and this is credited to @Takadoo75
+In the folder there is a file called ```password_generator.py``` and this is credited to @Takadoo75
 
 ```bash
 python password_cracker.py
