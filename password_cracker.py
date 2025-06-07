@@ -1,5 +1,5 @@
 import itertools, os, string, time
-from multiprocessing import Pool, cpu_count, Manager, get_context
+from multiprocessing import Pool, cpu_count, get_context
 from datetime import datetime
 
 class style():
@@ -15,77 +15,79 @@ class style():
     RESET = '\033[0m'
 
 def worker(args):
-    target, charset, length, prefixes, found_flag = args
+    target, charset, length, prefixes = args
     attempts = 0
+    charset_tuple = tuple(charset)
+    target_str = target
     for prefix in prefixes:
-        if found_flag.value:
-            break
-        for combo in itertools.product(charset, repeat=length - len(prefix)):
-            if found_flag.value:
-                break
-            guess = prefix + ''.join(combo)
+        suffix_len = length - len(prefix)
+        if suffix_len == 0:
+            guess = prefix
             attempts += 1
-            if guess == target:
-                found_flag.value = 1  # Signal others to stop
+            if guess == target_str:
                 return guess, attempts
+        else:
+            # Use bytes if all input is ascii for slight performance gain
+            for combo in itertools.product(charset_tuple, repeat=suffix_len):
+                guess = prefix + ''.join(combo)
+                attempts += 1
+                if guess == target_str:
+                    return guess, attempts
     return None, attempts
 
-def chunk_prefixes(charset, num_chunks, prefix_len=1):
-    # Create all possible prefixes of length prefix_len (default 1 or 2 for better load balancing)
-    if prefix_len == 1:
-        prefixes = list(charset)
-    else:
-        prefixes = [''.join(p) for p in itertools.product(charset, repeat=prefix_len)]
+def chunk_prefixes(charset, num_chunks, prefix_len=2):
+    # Use prefix_len=2 for more even work distribution for longer passwords
+    prefixes = [''.join(p) for p in itertools.product(charset, repeat=prefix_len)]
     chunk_size = (len(prefixes) + num_chunks - 1) // num_chunks
     return [prefixes[i:i + chunk_size] for i in range(0, len(prefixes), chunk_size)]
 
 def parallel_brute_force_crack(target, charset, max_length):
     num_workers = cpu_count()
-    print(f"Brute-forcing with {num_workers} workers, charset size {len(charset)}, target length {max_length}")
+    print(f"Brute-forcing with {num_workers} workers, charset size {len(charset)} and target length {max_length}")
 
     ctx = get_context("spawn")
     start_time = time.time()
     total_attempts = 0
     overall_total = sum(len(charset) ** l for l in range(1, max_length + 1))
 
-    with Manager() as manager:
-        found_flag = manager.Value('i', 0)
-        for length in range(1, max_length + 1):
-            prefix_len = 2 if length > 2 and len(charset) > 6 else 1
-            prefixes_chunks = chunk_prefixes(charset, num_workers, prefix_len=prefix_len)
-            args = [(target, charset, length, chunk, found_flag) for chunk in prefixes_chunks]
-            with ctx.Pool(num_workers) as pool:
-                results = pool.map_async(worker, args)
-                found = None
-
-                # Progress reporting loop
-                while not results.ready():
-                    elapsed = time.time() - start_time
-                    # Rough estimate: assume equal attempts per chunk, scaled by number of finished processes
-                    completed = sum([res._value is not None for k, res in pool._cache.items()])
+    for length in range(1, max_length + 1):
+        prefix_len = 2 if length > 2 else 1
+        prefixes_chunks = chunk_prefixes(charset, num_workers, prefix_len=prefix_len)
+        args = [(target, charset, length, chunk) for chunk in prefixes_chunks]
+        with ctx.Pool(num_workers) as pool:
+            results = pool.map_async(worker, args)
+            found = None
+            last_update = 0
+            # Progress reporting loop
+            while not results.ready():
+                now = time.time()
+                if now - last_update > 0.3: # Only update every 0.3s
+                    completed = sum(pool._cache[k]._value is not None for k in pool._cache)
                     est_attempts = total_attempts + completed * (len(charset) ** (length - prefix_len)) * len(prefixes_chunks[0])
                     percent = 100 * est_attempts / overall_total if overall_total else 0
                     bar_total = 40
                     filled = int(bar_total * percent / 100)
                     green_part = '\033[42m' + ' ' * filled
                     red_part = '\033[41m' + ' ' * (bar_total - filled)
+                    elapsed = now - start_time
                     bar = green_part + red_part + '\033[0m'
                     speed = round(est_attempts / elapsed if elapsed > 0 else 0, 2)
                     print(f"\r {style.YELLOW}Attempts: {style.WHITE}{style.UNDERLINE}{est_attempts}{style.RESET} |  {style.CYAN}Speed: {style.WHITE}{style.UNDERLINE}{speed:.2f}/s{style.RESET} | {style.GREEN}[{bar}]{style.RESET} {percent:.2f}%", end="", flush=True)
-                    time.sleep(0.1)
+                    last_update = now
+                time.sleep(0.05)
+            for res, attempts in results.get():
+                total_attempts += attempts
+                if res:
+                    found = res
+                    break
+            if found:
+                elapsed = time.time() - start_time
+                speed = total_attempts / elapsed if elapsed > 0 else 0
+                print("\033[2K\r", end="")  # Clear the entire line and move cursor to start
+                print(f"\n{style.GREEN}Password found: {style.WHITE}{style.UNDERLINE}{found}{style.RESET}{style.GREEN}, check log (logs/log_{found}.txt) for details.{style.RESET}")
+                log_results(found, total_attempts, elapsed, speed)
+                return found
 
-                for res, attempts in results.get():
-                    total_attempts += attempts
-                    if res:
-                        found = res
-                        break
-                if found:
-                    elapsed = time.time() - start_time
-                    speed = total_attempts / elapsed if elapsed > 0 else 0
-                    print("\033[2K\r", end="")  # Clear the entire line and move cursor to start
-                    print(f"\n{style.GREEN}Password found: {style.WHITE}{style.UNDERLINE}{found}{style.RESET}{style.GREEN}, check log (logs/log_{found}.txt) for details.{style.RESET}")
-                    log_results(found, total_attempts, elapsed, speed)
-                    return found
     print("\nPassword not found.")
     return None
 
