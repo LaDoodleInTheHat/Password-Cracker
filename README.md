@@ -59,6 +59,7 @@ python gpu_cracker.py
 - **Security**: This repository is for educational and benchmarking purposes only—do **not** use for unauthorized access. 🔒
 - **Password Length**: Brute-force time grows exponentially. For long passwords or large charsets, even GPU mode can take a very long time. ⏳
 - **Logging**: Each successful crack writes a detailed log to `logs/`, including attempts, time, and speed. 📑
+- **Finalisation**: The GPU acceleration hasn't been finalised and could be buggy and not finished.
 
 ---
 
@@ -69,9 +70,9 @@ This tool is intended for legal, ethical, and educational use only. The authors 
 
 ---
 
-## Credits
+<!-- ## Credits
 
 - @MEGA-COOKIE-MONSTER for coding it.
 - @Takadoo75 for inspiring me to build it.
 
-# Have Fun! 🎉 - LaDoodleInTheHat / Takadoo75
+# Have Fun! 🎉 - LaDoodleInTheHat / Takadoo75 -->
