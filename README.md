@@ -51,6 +51,9 @@ python password_cracker_GPU.py
 - Requires a supported NVIDIA GPU and CuPy. 🖥️
 - Progress and results are displayed and logged. 📈
 
+>[!WARNING]
+>The GPU optimised version has not been finalised yet and could be buggy or unfunctional
+
 ### 3. Password Generator
 
 In the folder there is a file called ```password_generator.py``` and this is credited to @Takadoo75
@@ -71,7 +74,6 @@ python password_generator.py
 - **Security**: This repository is for educational and benchmarking purposes only—do **not** use for unauthorized access. 🔒
 - **Password Length**: Brute-force time grows exponentially. For long passwords or large charsets, even GPU mode can take a very long time. ⏳
 - **Logging**: Each successful crack writes a detailed log to `logs/`, including attempts, time, and speed. 📑
-- **Finalisation**: The GPU acceleration hasn't been finalised and could be buggy and not finished.
 - **Generator**: The Generator calculates time by assuming there is about 1.3 trillion attempts/s
 - **C++**: a c plus, plus version is coming!
 
