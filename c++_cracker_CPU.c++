@@ -9,7 +9,24 @@
 
 using namespace std;
 
+// Style class (same as Python version)
+struct Style {
+    static constexpr const char* BLACK = "\033[30m";
+    static constexpr const char* RED = "\033[31m";
+    static constexpr const char* GREEN = "\033[32m";
+    static constexpr const char* YELLOW = "\033[33m";
+    static constexpr const char* BLUE = "\033[34m";
+    static constexpr const char* MAGENTA = "\033[35m";
+    static constexpr const char* CYAN = "\033[36m";
+    static constexpr const char* WHITE = "\033[37m";
+    static constexpr const char* UNDERLINE = "\033[4m";
+    static constexpr const char* RESET = "\033[0m";
+    static constexpr const char* GREEN_BG = "\033[42m";
+    static constexpr const char* RED_BG = "\033[41m";
+};
+
 atomic<bool> found(false);
+atomic<bool> done_printing(false);
 mutex cout_mutex;
 
 string int_to_prefix(size_t idx, size_t prefix_len, const string& charset) {
@@ -27,15 +44,17 @@ void print_progress(size_t total_attempts, size_t overall_total, double elapsed)
     int bar_width = 40;
     int pos = static_cast<int>(bar_width * percent / 100.0);
 
-    cout << "\r[";
+    // Build colored progress bar
+    cout << "\r " << Style::YELLOW << "Attempts: " << Style::WHITE << Style::UNDERLINE << total_attempts << Style::RESET;
+    cout << " | " << Style::CYAN << "Speed: " << Style::WHITE << Style::UNDERLINE << static_cast<size_t>(total_attempts / elapsed) << "/s" << Style::RESET;
+    cout << " | " << Style::MAGENTA << "Elapsed: " << Style::WHITE << Style::UNDERLINE << fixed << setprecision(2) << elapsed << "s" << Style::RESET;
+    cout << " | " << Style::GREEN << "[";
     for (int i = 0; i < bar_width; ++i) {
-        if (i < pos) cout << "=";
-        else if (i == pos) cout << ">";
-        else cout << " ";
+        if (i < pos) cout << Style::GREEN_BG << " " << Style::RESET << Style::GREEN;
+        else cout << Style::RED_BG << " " << Style::RESET << Style::GREEN;
     }
-    cout << "] ";
-    cout << fixed << setprecision(2) << percent << "% ";
-    cout << "Speed: " << static_cast<size_t>(total_attempts / elapsed) << " attempts/sec ";
+    cout << Style::RESET << "] ";
+    cout << Style::WHITE << fixed << setprecision(2) << percent << "%" << Style::RESET;
     cout.flush();
 }
 
@@ -44,8 +63,6 @@ void worker(const string& target, const string& charset, int length, size_t pref
             size_t overall_total, chrono::steady_clock::time_point start_time) {
 
     size_t charset_size = charset.size();
-
-    size_t last_progress_update = 0;
 
     for (size_t prefix_idx = start_idx; prefix_idx < end_idx && !found; ++prefix_idx) {
         string prefix = int_to_prefix(prefix_idx, prefix_len, charset);
@@ -65,7 +82,7 @@ void worker(const string& target, const string& charset, int length, size_t pref
             size_t attempt_now = ++total_attempts;
 
             // Occasionally print progress (every 100000 attempts)
-            if (attempt_now % 100000 == 0 && !found) {
+            if (attempt_now % 100000 == 0 && !found && !done_printing) {
                 lock_guard<mutex> lock(cout_mutex);
                 auto now = chrono::steady_clock::now();
                 double elapsed = chrono::duration_cast<chrono::duration<double>>(now - start_time).count();
@@ -77,10 +94,14 @@ void worker(const string& target, const string& charset, int length, size_t pref
                 auto now = chrono::steady_clock::now();
                 double elapsed = chrono::duration_cast<chrono::duration<double>>(now - start_time).count();
 
-                cout << "\n\nPassword found: " << guess << endl;
-                cout << "Total attempts: " << attempt_now << endl;
-                cout << "Elapsed time: " << elapsed << " seconds" << endl;
-                cout << "Speed: " << static_cast<size_t>(attempt_now / elapsed) << " attempts/sec\n";
+                cout << "\033[2K\r" << flush; // Clear line
+                cout << Style::GREEN << "\nPassword found: " << Style::WHITE << Style::UNDERLINE << guess << Style::RESET << Style::GREEN;
+                cout << "\nTotal attempts: " << total_attempts;
+                cout << "\nElapsed time: " << elapsed << " seconds";
+                cout << "\nSpeed: " << static_cast<size_t>(total_attempts / elapsed) << " attempts/sec\n";
+
+                done_printing = true; // tell other threads to stop printing
+                this_thread::sleep_for(chrono::milliseconds(300)); // give 300ms pause for stray prints
                 found = true;
                 return;
             }
@@ -90,7 +111,7 @@ void worker(const string& target, const string& charset, int length, size_t pref
 
 void parallel_brute_force(const string& target, const string& charset, int max_length) {
     size_t num_threads = thread::hardware_concurrency();
-    cout << "Brute-forcing with " << num_threads << " threads\n";
+    cout << Style::YELLOW << "Brute-forcing with " << num_threads << " threads" << Style::RESET << "\n";
 
     atomic<size_t> total_attempts(0);
     auto start_time = chrono::steady_clock::now();
@@ -123,13 +144,14 @@ void parallel_brute_force(const string& target, const string& charset, int max_l
     }
 
     if (!found) {
-        cout << "\nPassword not found.\n";
+        cout << Style::RED << "\nPassword not found.\n" << Style::RESET;
     }
 }
 
 int main() {
     string target;
-    cout << "Enter password to crack: ";
+    cout << Style::YELLOW << "-- CPU Password Cracker -- \n" << Style::RESET;
+    cout << Style::BLUE << "\nEnter password to crack: " << Style::RESET;
     getline(cin, target);
 
     string charset;
@@ -141,7 +163,7 @@ int main() {
         if (isspace(c) && charset.find(' ') == string::npos) charset += ' ';
     }
 
-    cout << "Using charset: " << charset << "\n";
+    cout << Style::GREEN << "Detected charset: " << charset << Style::RESET << "\n";
 
     parallel_brute_force(target, charset, target.length());
 
