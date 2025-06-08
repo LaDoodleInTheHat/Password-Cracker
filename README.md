@@ -34,7 +34,7 @@ A high-performance brute-force password cracking simulation tool for educational
 ### 1. CPU Cracker
 
 ```bash
-python password_cracker.py
+python password_cracker_CPU.py
 ```
 
 - Enter the password to simulate cracking. 🔑
@@ -44,7 +44,7 @@ python password_cracker.py
 ### 2. GPU Cracker
 
 ```bash
-python gpu_cracker.py
+python password_cracker_GPU.py
 ```
 
 - Enter the password, and (optionally) a custom charset, max length, and batch size. 📝
@@ -72,6 +72,7 @@ python password_generator.py
 - **Password Length**: Brute-force time grows exponentially. For long passwords or large charsets, even GPU mode can take a very long time. ⏳
 - **Logging**: Each successful crack writes a detailed log to `logs/`, including attempts, time, and speed. 📑
 - **Finalisation**: The GPU acceleration hasn't been finalised and could be buggy and not finished.
+- **Generator**: The Generator calculates time by assuming there is about 1.3 trillion attempts/s
 
 ---
 
