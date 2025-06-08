@@ -6,26 +6,26 @@ A high-performance brute-force password cracking simulation tool for educational
 
 ## Features ✨
 
-- **Brute-Force Cracking**: Tries all possible combinations for a given password using a customizable charset. 🔍
-- **CPU Mode**: Utilizes all available CPU cores with Python multiprocessing for fast cracking. 🖥️
-- **GPU Mode**: Leverages CUDA-capable GPUs using [CuPy](https://cupy.dev/) for massive parallelism and superior speed (NVIDIA GPUs required). ⚡
-- **Dynamic Batch Sizing**: GPU mode automatically adapts batch sizes based on available GPU memory. 📦
-- **Real-Time Feedback**: Colorful, live progress bars and speed reporting. 📊
-- **Auto Charset Detection**: Detects required charset based on the target password, or customize as needed. 🧩
-- **Detailed Logging**: Results are logged to `logs/` with all relevant statistics and a copy of the latest run. 📝
+- **Brute-Force Cracking**: Tries all possible combinations for a given password using a customizable charset.
+- **CPU Mode**: Utilizes all available CPU cores with Python multiprocessing for fast cracking. 
+- **GPU Mode**: Leverages CUDA-capable GPUs using [CuPy](https://cupy.dev/) for massive parallelism and superior speed (NVIDIA GPUs required).
+- **Dynamic Batch Sizing**: GPU mode automatically adapts batch sizes based on available GPU memory.
+- **Real-Time Feedback**: Colorful, live progress bars and speed reporting.
+- **Auto Charset Detection**: Detects required charset based on the target password, or customize as needed.
+- **Detailed Logging**: Results are logged to `logs/` with all relevant statistics and a copy of the latest run.
 
 ---
 
 ## Requirements 🛠️
 
-- **Python 3.13.4+** 🐍
+- **Python 3.13.4+**
 - For CPU: No special dependencies (uses standard library).
-- For GPU: [CuPy](https://cupy.dev/) with a CUDA-capable NVIDIA GPU and appropriate CUDA drivers. 💻
+- For GPU: [CuPy](https://cupy.dev/) with a CUDA-capable NVIDIA GPU and appropriate CUDA drivers.
   - Install CuPy (replace `11x` with your CUDA version):  
     ```
     pip install cupy-cuda11x
     ```
-- See [CuPy Installation](https://docs.cupy.dev/en/stable/install.html) if unsure about your CUDA version. ❓
+- See [CuPy Installation](https://docs.cupy.dev/en/stable/install.html) if unsure about your CUDA version.
 
 ---
 
@@ -47,9 +47,12 @@ python password_cracker_CPU.py
 python password_cracker_GPU.py
 ```
 
-- Enter the password, and (optionally) a custom charset, max length, and batch size. 📝
-- Requires a supported NVIDIA GPU and CuPy. 🖥️
-- Progress and results are displayed and logged. 📈
+- Enter the password, and (optionally) a batch size.
+- Requires a supported NVIDIA GPU and CuPy. 
+- Progress and results are displayed and logged. 
+
+>[!WARNING]
+>The GPU optimised version has not been finalised yet and could be buggy or unfunctional
 
 ### 3. Password Generator
 
@@ -67,17 +70,16 @@ python password_generator.py
 
 ## Notes 📝
 
-- **Performance**: GPU mode is vastly faster, especially for longer target passwords and large charsets. ⚡
-- **Security**: This repository is for educational and benchmarking purposes only—do **not** use for unauthorized access. 🔒
-- **Password Length**: Brute-force time grows exponentially. For long passwords or large charsets, even GPU mode can take a very long time. ⏳
-- **Logging**: Each successful crack writes a detailed log to `logs/`, including attempts, time, and speed. 📑
-- **Finalisation**: The GPU acceleration hasn't been finalised and could be buggy and not finished.
+- **Performance**: GPU mode is vastly faster, especially for longer target passwords and large charsets. 
+- **Security**: This repository is for educational and benchmarking purposes only—do **not** use for unauthorized access. 
+- **Password Length**: Brute-force time grows exponentially. For long passwords or large charsets, even GPU mode can take a very long time. 
+- **Logging**: Each successful crack writes a detailed log to `logs/`, including attempts, time, and speed. 
 - **Generator**: The Generator calculates time by assuming there is about 1.3 trillion attempts/s
 - **C++**: a c plus, plus version is coming!
 
 ---
 
-## Disclaimer ⚠️
+## Disclaimer ⚠️    
 
 This tool is intended for legal, ethical, and educational use only. The authors are not responsible for any misuse.  
 (oh and btw it isn't practical for any offline attacks either, 🙂 )

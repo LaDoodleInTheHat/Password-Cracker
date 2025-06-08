@@ -68,7 +68,7 @@ def parallel_brute_force_crack(target, charset, max_length):
             # Progress reporting loop
             while not results.ready():
                 now = time.time()
-                if now - last_update > 0.3: # Only update every 0.3s
+                if now - last_update > 0.01: # Only update every 0.01s
                     completed = sum(pool._cache[k]._value is not None for k in pool._cache)
                     est_attempts = total_attempts + completed * (len(charset) ** (length - prefix_len)) * len(prefixes_chunks[0])
                     percent = 100 * est_attempts / overall_total if overall_total else 0
