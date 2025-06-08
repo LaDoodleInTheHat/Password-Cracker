@@ -73,6 +73,7 @@ python password_generator.py
 - **Logging**: Each successful crack writes a detailed log to `logs/`, including attempts, time, and speed. 📑
 - **Finalisation**: The GPU acceleration hasn't been finalised and could be buggy and not finished.
 - **Generator**: The Generator calculates time by assuming there is about 1.3 trillion attempts/s
+- **C++**: a c plus, plus version is coming!
 
 ---
 
