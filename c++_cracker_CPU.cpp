@@ -168,7 +168,7 @@ int main() {
         enable_progress = config.value("enable_progress", true);
 
         cout << Style::CYAN << "Using progress_interval: " << Style::RESET << progress_interval << "\n";
-        cout << Style::CYAN << "Progress display enabled: " << (enable_progress ? "YES" : "NO") << Style::RESET << "\n";
+        cout << Style::CYAN << "Progress display enabled: " << Style::RESET << (enable_progress ? "YES" : "NO") << "\n";
 
     } catch (const exception& e) {
         cout << Style::RED << "Config error: " << e.what() << ". Using defaults." << Style::RESET << "\n";
