@@ -8,6 +8,9 @@
 #include <cmath>
 #include <iomanip>
 
+#include "include/json.hpp"
+using json = nlohmann::json;
+
 using namespace std;
 
 // Style class
@@ -58,7 +61,7 @@ void print_progress(size_t total_attempts, size_t overall_total, double elapsed)
 void worker(const string& target, const string& charset, int length, size_t prefix_len,
             size_t start_idx, size_t end_idx, atomic<size_t>& total_attempts,
             size_t overall_total, chrono::steady_clock::time_point start_time,
-            size_t progress_interval) {
+            size_t progress_interval, bool enable_progress) {
 
     size_t charset_size = charset.size();
 
@@ -69,7 +72,6 @@ void worker(const string& target, const string& charset, int length, size_t pref
         size_t total_combos = pow(charset_size, suffix_len);
 
         for (size_t i = 0; i < total_combos && !found; ++i) {
-            // Build guess
             size_t n = i;
             string guess = prefix;
             for (size_t j = 0; j < suffix_len; ++j) {
@@ -79,8 +81,7 @@ void worker(const string& target, const string& charset, int length, size_t pref
 
             size_t attempt_now = ++total_attempts;
 
-            // Modular progress print
-            if (attempt_now % progress_interval == 0 && !found && !done_printing && !printing_final) {
+            if (attempt_now % progress_interval == 0 && !found && !done_printing && !printing_final && enable_progress) {
                 lock_guard<mutex> lock(cout_mutex);
                 if (!printing_final) {
                     auto now = chrono::steady_clock::now();
@@ -96,7 +97,7 @@ void worker(const string& target, const string& charset, int length, size_t pref
                 auto now = chrono::steady_clock::now();
                 double elapsed = chrono::duration_cast<chrono::duration<double>>(now - start_time).count();
 
-                cout << "\033[2K\r" << flush; // Clear line
+                cout << "\033[2K\r" << flush;
                 cout << "\n" << Style::GREEN << Style::BOLD << "Password found: " << Style::RESET << Style::GREEN << guess << Style::RESET;
                 cout << "\n" << Style::CYAN << "Total attempts: " << Style::RESET << total_attempts;
                 cout << "\n" << Style::CYAN << "Elapsed time: " << Style::RESET << elapsed << " seconds";
@@ -111,7 +112,9 @@ void worker(const string& target, const string& charset, int length, size_t pref
     }
 }
 
-void parallel_brute_force(const string& target, const string& charset, int max_length, size_t progress_interval) {
+void parallel_brute_force(const string& target, const string& charset, int max_length,
+                          size_t progress_interval, bool enable_progress) {
+
     size_t num_threads = thread::hardware_concurrency();
     cout << Style::BLUE << "Brute-forcing with " << num_threads << " threads" << Style::RESET << "\n";
 
@@ -137,7 +140,7 @@ void parallel_brute_force(const string& target, const string& charset, int max_l
 
             threads.emplace_back(worker, ref(target), ref(charset), length, prefix_len,
                                  start_idx, end_idx, ref(total_attempts),
-                                 overall_total, start_time, progress_interval);
+                                 overall_total, start_time, progress_interval, enable_progress);
         }
 
         for (auto& th : threads) {
@@ -151,15 +154,24 @@ void parallel_brute_force(const string& target, const string& charset, int max_l
 }
 
 int main() {
-    // Load progress_interval from config
-    size_t progress_interval = 100000; // default fallback
-    ifstream config_file("config/progress_interval.txt");
-    if (config_file.is_open()) {
-        config_file >> progress_interval;
-        config_file.close();
-        cout << Style::CYAN << "Using progress interval from config: " << Style::RESET << progress_interval << "\n";
-    } else {
-        cout << Style::RED << "Could not read config/progress_interval.txt, using default: " << progress_interval << Style::RESET << "\n";
+    size_t progress_interval = 100000;
+    bool enable_progress = true;
+
+    try {
+        ifstream config_file("config/c++_config.json");
+        if (!config_file.is_open()) throw runtime_error("Could not open config/c++_config.json");
+
+        json config;
+        config_file >> config;
+
+        progress_interval = config.value("progress_interval", 100000);
+        enable_progress = config.value("enable_progress", true);
+
+        cout << Style::CYAN << "Using progress_interval: " << Style::RESET << progress_interval << "\n";
+        cout << Style::CYAN << "Progress display enabled: " << (enable_progress ? "YES" : "NO") << Style::RESET << "\n";
+
+    } catch (const exception& e) {
+        cout << Style::RED << "Config error: " << e.what() << ". Using defaults." << Style::RESET << "\n";
     }
 
     string target;
@@ -178,7 +190,7 @@ int main() {
 
     cout << Style::CYAN << "Detected charset: " << Style::RESET << charset << "\n";
 
-    parallel_brute_force(target, charset, target.length(), progress_interval);
+    parallel_brute_force(target, charset, target.length(), progress_interval, enable_progress);
 
     cout << "\nPress Enter to exit...";
     cin.get();
