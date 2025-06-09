@@ -27,6 +27,7 @@ struct Style {
 
 atomic<bool> found(false);
 atomic<bool> done_printing(false);
+atomic<bool> printing_final(false);
 mutex cout_mutex;
 
 string int_to_prefix(size_t idx, size_t prefix_len, const string& charset) {
@@ -48,12 +49,12 @@ void print_progress(size_t total_attempts, size_t overall_total, double elapsed)
     cout << "\r " << Style::YELLOW << "Attempts: " << Style::WHITE << Style::UNDERLINE << total_attempts << Style::RESET;
     cout << " | " << Style::CYAN << "Speed: " << Style::WHITE << Style::UNDERLINE << static_cast<size_t>(total_attempts / elapsed) << "/s" << Style::RESET;
     cout << " | " << Style::MAGENTA << "Elapsed: " << Style::WHITE << Style::UNDERLINE << fixed << setprecision(2) << elapsed << "s" << Style::RESET;
-    cout << " | " << Style::GREEN << "Progress: " << Style::RESET;
+    cout << " | " << Style::GREEN << "[";
     for (int i = 0; i < bar_width; ++i) {
         if (i < pos) cout << Style::GREEN_BG << " " << Style::RESET << Style::GREEN;
         else cout << Style::RED_BG << " " << Style::RESET << Style::GREEN;
     }
-    cout << Style::RESET << "";
+    cout << Style::RESET << "] ";
     cout << Style::WHITE << fixed << setprecision(2) << percent << "%" << Style::RESET;
     cout.flush();
 }
@@ -82,26 +83,30 @@ void worker(const string& target, const string& charset, int length, size_t pref
             size_t attempt_now = ++total_attempts;
 
             // Occasionally print progress (every 100000 attempts)
-            if (attempt_now % 100000 == 0 && !found && !done_printing) {
+            if (attempt_now % 100000 == 0 && !found && !done_printing && !printing_final) {
                 lock_guard<mutex> lock(cout_mutex);
-                auto now = chrono::steady_clock::now();
-                double elapsed = chrono::duration_cast<chrono::duration<double>>(now - start_time).count();
-                print_progress(attempt_now, overall_total, elapsed);
+                if (!printing_final) { // extra guard inside lock
+                    auto now = chrono::steady_clock::now();
+                    double elapsed = chrono::duration_cast<chrono::duration<double>>(now - start_time).count();
+                    print_progress(attempt_now, overall_total, elapsed);
+                }
             }
 
             if (guess == target) {
                 lock_guard<mutex> lock(cout_mutex);
+                printing_final = true; // STOP further progress prints
+
                 auto now = chrono::steady_clock::now();
                 double elapsed = chrono::duration_cast<chrono::duration<double>>(now - start_time).count();
 
-                cout << string(100, ' ') << flush; // Clear line
+                cout << "\033[2K\r" << flush; // Clear line
                 cout << Style::GREEN << "\nPassword found: " << Style::WHITE << Style::UNDERLINE << guess << Style::RESET << Style::GREEN;
                 cout << "\nTotal attempts: " << total_attempts;
                 cout << "\nElapsed time: " << elapsed << " seconds";
                 cout << "\nSpeed: " << static_cast<size_t>(total_attempts / elapsed) << " attempts/sec\n";
-                cout << string(100, ' ') << flush; // Clear line
-                done_printing = true; // tell other threads to stop printing
-                this_thread::sleep_for(chrono::milliseconds(300)); // give 300ms pause for stray prints
+
+                this_thread::sleep_for(chrono::milliseconds(300)); // allow stragglers to skip printing
+                done_printing = true;
                 found = true;
                 return;
             }
