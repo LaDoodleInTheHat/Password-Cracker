@@ -49,12 +49,12 @@ void print_progress(size_t total_attempts, size_t overall_total, double elapsed)
     cout << "\r " << Style::YELLOW << "Attempts: " << Style::WHITE << Style::UNDERLINE << total_attempts << Style::RESET;
     cout << " | " << Style::CYAN << "Speed: " << Style::WHITE << Style::UNDERLINE << static_cast<size_t>(total_attempts / elapsed) << "/s" << Style::RESET;
     cout << " | " << Style::MAGENTA << "Elapsed: " << Style::WHITE << Style::UNDERLINE << fixed << setprecision(2) << elapsed << "s" << Style::RESET;
-    cout << " | " << Style::GREEN << "[";
+    cout << " | " << Style::GREEN << "";
     for (int i = 0; i < bar_width; ++i) {
         if (i < pos) cout << Style::GREEN_BG << " " << Style::RESET << Style::GREEN;
         else cout << Style::RED_BG << " " << Style::RESET << Style::GREEN;
     }
-    cout << Style::RESET << "] ";
+    cout << Style::RESET << " ";
     cout << Style::WHITE << fixed << setprecision(2) << percent << "%" << Style::RESET;
     cout.flush();
 }
