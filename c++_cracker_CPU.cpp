@@ -184,7 +184,7 @@ int main() {
         if (islower(c) && charset.find_first_of("abcdefghijklmnopqrstuvwxyz") == string::npos) charset += "abcdefghijklmnopqrstuvwxyz";
         if (isupper(c) && charset.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") == string::npos) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         if (isdigit(c) && charset.find_first_of("0123456789") == string::npos) charset += "0123456789";
-        if (ispunct(c) && charset.find(c) == string::npos) charset += c;
+        if (ispunct(c) && charset.find("~!@#$%^&*()-_=+[]{}|;:',.<>?/") == string::npos) charset += "~!@#$%^&*()-_=+[]{}|;:',.<>?/";
         if (isspace(c) && charset.find(' ') == string::npos) charset += ' ';
     }
 
