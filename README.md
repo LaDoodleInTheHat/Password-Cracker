@@ -26,6 +26,7 @@ A high-performance brute-force password cracking simulation tool for educational
     pip install cupy-cuda11x
     ```
 - See [CuPy Installation](https://docs.cupy.dev/en/stable/install.html) if unsure about your CUDA version.
+- For C++ CPU: None, just download and use!
 
 ---
 
@@ -66,6 +67,16 @@ python password_generator.py
 - Test password strength
 - Generate password
 
+### 4. C++ Version (CPU)
+
+In the folder there is a file called `c++_cracker_CPU.exe` and this includes an exe version for the c++ source code from `c++_cracker_CPU.c++`
+
+- Does the same as CPU password cracker (Python)
+- Optimises binary code that compiles into the lowest stage of compute
+
+>[!NOTE]
+>The C++ version is still in early development, please correct me if there are some ways to optimise it even further
+
 ---
 
 ## Notes 📝
@@ -75,7 +86,6 @@ python password_generator.py
 - **Password Length**: Brute-force time grows exponentially. For long passwords or large charsets, even GPU mode can take a very long time. 
 - **Logging**: Each successful crack writes a detailed log to `logs/`, including attempts, time, and speed. 
 - **Generator**: The Generator calculates time by assuming there is about 1.3 trillion attempts/s
-- **C++**: a c plus, plus version is coming!
 
 ---
 
