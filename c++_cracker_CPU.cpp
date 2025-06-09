@@ -9,20 +9,14 @@
 
 using namespace std;
 
-// Style class (same as Python version)
+// Style class with a few colors
 struct Style {
-    static constexpr const char* BLACK = "\033[30m";
+    static constexpr const char* RESET = "\033[0m";
     static constexpr const char* RED = "\033[31m";
     static constexpr const char* GREEN = "\033[32m";
-    static constexpr const char* YELLOW = "\033[33m";
     static constexpr const char* BLUE = "\033[34m";
-    static constexpr const char* MAGENTA = "\033[35m";
     static constexpr const char* CYAN = "\033[36m";
-    static constexpr const char* WHITE = "\033[37m";
-    static constexpr const char* UNDERLINE = "\033[4m";
-    static constexpr const char* RESET = "\033[0m";
-    static constexpr const char* GREEN_BG = "\033[42m";
-    static constexpr const char* RED_BG = "\033[41m";
+    static constexpr const char* BOLD = "\033[1m";
 };
 
 atomic<bool> found(false);
@@ -45,17 +39,19 @@ void print_progress(size_t total_attempts, size_t overall_total, double elapsed)
     int bar_width = 40;
     int pos = static_cast<int>(bar_width * percent / 100.0);
 
-    // Build colored progress bar
-    cout << "\r " << Style::YELLOW << "Attempts: " << Style::WHITE << Style::UNDERLINE << total_attempts << Style::RESET;
-    cout << " | " << Style::CYAN << "Speed: " << Style::WHITE << Style::UNDERLINE << static_cast<size_t>(total_attempts / elapsed) << "/s" << Style::RESET;
-    cout << " | " << Style::MAGENTA << "Elapsed: " << Style::WHITE << Style::UNDERLINE << fixed << setprecision(2) << elapsed << "s" << Style::RESET;
-    cout << " | " << Style::GREEN << "";
+    // Progress bar with color: green for completed, blue for remaining
+    cout << "\r" << Style::CYAN << " Attempts: " << Style::RESET << total_attempts;
+    cout << Style::CYAN << " | Speed: " << Style::RESET << static_cast<size_t>(total_attempts / elapsed) << "/s";
+    cout << Style::CYAN << " | Elapsed: " << Style::RESET << fixed << setprecision(2) << elapsed << "s";
+    cout << Style::CYAN << " | [" << Style::RESET;
     for (int i = 0; i < bar_width; ++i) {
-        if (i < pos) cout << Style::GREEN_BG << " " << Style::RESET << Style::GREEN;
-        else cout << Style::RED_BG << " " << Style::RESET << Style::GREEN;
+        if (i < pos)
+            cout << Style::GREEN << "=" << Style::RESET;
+        else
+            cout << Style::BLUE << "-" << Style::RESET;
     }
-    cout << Style::RESET << " ";
-    cout << Style::WHITE << fixed << setprecision(2) << percent << "%" << Style::RESET;
+    cout << Style::CYAN << "] " << Style::RESET;
+    cout << fixed << setprecision(2) << percent << "%";
     cout.flush();
 }
 
@@ -85,7 +81,7 @@ void worker(const string& target, const string& charset, int length, size_t pref
             // Occasionally print progress (every 100000 attempts)
             if (attempt_now % 100000 == 0 && !found && !done_printing && !printing_final) {
                 lock_guard<mutex> lock(cout_mutex);
-                if (!printing_final) { // extra guard inside lock
+                if (!printing_final) {
                     auto now = chrono::steady_clock::now();
                     double elapsed = chrono::duration_cast<chrono::duration<double>>(now - start_time).count();
                     print_progress(attempt_now, overall_total, elapsed);
@@ -94,18 +90,18 @@ void worker(const string& target, const string& charset, int length, size_t pref
 
             if (guess == target) {
                 lock_guard<mutex> lock(cout_mutex);
-                printing_final = true; // STOP further progress prints
+                printing_final = true;
 
                 auto now = chrono::steady_clock::now();
                 double elapsed = chrono::duration_cast<chrono::duration<double>>(now - start_time).count();
 
                 cout << "\033[2K\r" << flush; // Clear line
-                cout << Style::GREEN << "\nPassword found: " << Style::WHITE << Style::UNDERLINE << guess << Style::RESET << Style::GREEN;
-                cout << "\nTotal attempts: " << total_attempts;
-                cout << "\nElapsed time: " << elapsed << " seconds";
-                cout << "\nSpeed: " << static_cast<size_t>(total_attempts / elapsed) << " attempts/sec\n";
+                cout << "\n" << Style::GREEN << Style::BOLD << "Password found: " << Style::RESET << Style::GREEN << guess << Style::RESET;
+                cout << "\n" << Style::CYAN << "Total attempts: " << Style::RESET << total_attempts;
+                cout << "\n" << Style::CYAN << "Elapsed time: " << Style::RESET << elapsed << " seconds";
+                cout << "\n" << Style::CYAN << "Speed: " << Style::RESET << static_cast<size_t>(total_attempts / elapsed) << " attempts/sec\n";
 
-                this_thread::sleep_for(chrono::milliseconds(300)); // allow stragglers to skip printing
+                this_thread::sleep_for(chrono::milliseconds(300));
                 done_printing = true;
                 found = true;
                 return;
@@ -116,7 +112,7 @@ void worker(const string& target, const string& charset, int length, size_t pref
 
 void parallel_brute_force(const string& target, const string& charset, int max_length) {
     size_t num_threads = thread::hardware_concurrency();
-    cout << Style::YELLOW << "Brute-forcing with " << num_threads << " threads" << Style::RESET << "\n";
+    cout << Style::BLUE << "Brute-forcing with " << num_threads << " threads" << Style::RESET << "\n";
 
     atomic<size_t> total_attempts(0);
     auto start_time = chrono::steady_clock::now();
@@ -149,14 +145,14 @@ void parallel_brute_force(const string& target, const string& charset, int max_l
     }
 
     if (!found) {
-        cout << Style::RED << "\nPassword not found.\n" << Style::RESET;
+        cout << "\n" << Style::RED << "Password not found." << Style::RESET << "\n";
     }
 }
 
 int main() {
     string target;
-    cout << Style::YELLOW << "-- CPU Password Cracker -- \n" << Style::RESET;
-    cout << Style::BLUE << "\nEnter password to crack: " << Style::RESET;
+    cout << Style::BOLD << Style::BLUE << "-- CPU Password Cracker --" << Style::RESET << "\n";
+    cout << "\nEnter password to crack: ";
     getline(cin, target);
 
     string charset;
@@ -168,7 +164,7 @@ int main() {
         if (isspace(c) && charset.find(' ') == string::npos) charset += ' ';
     }
 
-    cout << Style::GREEN << "Detected charset: " << charset << Style::RESET << "\n";
+    cout << Style::CYAN << "Detected charset: " << Style::RESET << charset << "\n";
 
     parallel_brute_force(target, charset, target.length());
 
