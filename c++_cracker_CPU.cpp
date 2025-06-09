@@ -190,6 +190,9 @@ int main() {
 
     if (charset.empty()) {
         cout << Style::RED << "Error: No valid characters found in the target password." << Style::RESET << "\n";
+        cout << "Please ensure the password contains valid characters (letters, digits, punctuation).\n";
+        cout << "\nPress Enter to exit...";
+        cin.get();
         return 1;
     }
 
