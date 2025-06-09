@@ -73,6 +73,7 @@ In the folder there is a file called `c++_cracker_CPU.exe` and this includes an 
 
 - Does the same as CPU password cracker (Python)
 - Optimises binary code that compiles into the lowest stage of compute
+- Has a config file to configure the c++ version.
 
 >[!NOTE]
 >The C++ version is still in early development, please correct me if there are some ways to optimise it even further
