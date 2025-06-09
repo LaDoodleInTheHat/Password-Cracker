@@ -69,7 +69,7 @@ python password_generator.py
 
 ### 4. C++ Version (CPU)
 
-In the folder there is a file called `c++_cracker_CPU.exe` and this includes an exe version for the c++ source code from `c++_cracker_CPU.c++`
+In the folder there is a file called `c++_cracker_CPU.exe` and this includes an exe version for the c++ source code from `c++_cracker_CPU.cpp`
 
 - Does the same as CPU password cracker (Python)
 - Optimises binary code that compiles into the lowest stage of compute
