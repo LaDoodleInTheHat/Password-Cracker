@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -9,7 +10,7 @@
 
 using namespace std;
 
-// Style class with a few colors
+// Style class
 struct Style {
     static constexpr const char* RESET = "\033[0m";
     static constexpr const char* RED = "\033[31m";
@@ -39,7 +40,6 @@ void print_progress(size_t total_attempts, size_t overall_total, double elapsed)
     int bar_width = 40;
     int pos = static_cast<int>(bar_width * percent / 100.0);
 
-    // Progress bar with color: green for completed, blue for remaining
     cout << "\r" << Style::CYAN << " Attempts: " << Style::RESET << total_attempts;
     cout << Style::CYAN << " | Speed: " << Style::RESET << static_cast<size_t>(total_attempts / elapsed) << "/s";
     cout << Style::CYAN << " | Elapsed: " << Style::RESET << fixed << setprecision(2) << elapsed << "s";
@@ -57,7 +57,8 @@ void print_progress(size_t total_attempts, size_t overall_total, double elapsed)
 
 void worker(const string& target, const string& charset, int length, size_t prefix_len,
             size_t start_idx, size_t end_idx, atomic<size_t>& total_attempts,
-            size_t overall_total, chrono::steady_clock::time_point start_time) {
+            size_t overall_total, chrono::steady_clock::time_point start_time,
+            size_t progress_interval) {
 
     size_t charset_size = charset.size();
 
@@ -78,8 +79,8 @@ void worker(const string& target, const string& charset, int length, size_t pref
 
             size_t attempt_now = ++total_attempts;
 
-            // Occasionally print progress (every 100000 attempts)
-            if (attempt_now % 100000 == 0 && !found && !done_printing && !printing_final) {
+            // Modular progress print
+            if (attempt_now % progress_interval == 0 && !found && !done_printing && !printing_final) {
                 lock_guard<mutex> lock(cout_mutex);
                 if (!printing_final) {
                     auto now = chrono::steady_clock::now();
@@ -110,7 +111,7 @@ void worker(const string& target, const string& charset, int length, size_t pref
     }
 }
 
-void parallel_brute_force(const string& target, const string& charset, int max_length) {
+void parallel_brute_force(const string& target, const string& charset, int max_length, size_t progress_interval) {
     size_t num_threads = thread::hardware_concurrency();
     cout << Style::BLUE << "Brute-forcing with " << num_threads << " threads" << Style::RESET << "\n";
 
@@ -136,7 +137,7 @@ void parallel_brute_force(const string& target, const string& charset, int max_l
 
             threads.emplace_back(worker, ref(target), ref(charset), length, prefix_len,
                                  start_idx, end_idx, ref(total_attempts),
-                                 overall_total, start_time);
+                                 overall_total, start_time, progress_interval);
         }
 
         for (auto& th : threads) {
@@ -150,6 +151,17 @@ void parallel_brute_force(const string& target, const string& charset, int max_l
 }
 
 int main() {
+    // Load progress_interval from config
+    size_t progress_interval = 100000; // default fallback
+    ifstream config_file("config/progress_interval.txt");
+    if (config_file.is_open()) {
+        config_file >> progress_interval;
+        config_file.close();
+        cout << Style::CYAN << "Using progress interval from config: " << Style::RESET << progress_interval << "\n";
+    } else {
+        cout << Style::RED << "Could not read config/progress_interval.txt, using default: " << progress_interval << Style::RESET << "\n";
+    }
+
     string target;
     cout << Style::BOLD << Style::BLUE << "-- CPU Password Cracker --" << Style::RESET << "\n";
     cout << "\nEnter password to crack: ";
@@ -166,7 +178,7 @@ int main() {
 
     cout << Style::CYAN << "Detected charset: " << Style::RESET << charset << "\n";
 
-    parallel_brute_force(target, charset, target.length());
+    parallel_brute_force(target, charset, target.length(), progress_interval);
 
     cout << "\nPress Enter to exit...";
     cin.get();
