@@ -188,6 +188,11 @@ int main() {
         if (isspace(c) && charset.find(' ') == string::npos) charset += ' ';
     }
 
+    if (charset.empty()) {
+        cout << Style::RED << "Error: No valid characters found in the target password." << Style::RESET << "\n";
+        return 1;
+    }
+
     cout << Style::CYAN << "Detected charset: " << Style::RESET << charset << "\n";
 
     parallel_brute_force(target, charset, target.length(), progress_interval, enable_progress);
