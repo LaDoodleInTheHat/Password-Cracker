@@ -3,3 +3,4 @@ Password Cracker.code-workspace
 encrypted-password.bin
 /.vscode/
 desktop.ini
+include/
