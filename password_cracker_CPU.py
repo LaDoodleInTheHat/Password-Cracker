@@ -1,6 +1,6 @@
 import itertools, os, string, time
 from multiprocessing import cpu_count, get_context
-from datetime import datetime
+from datetime import datetime as dt
 
 class style():
     BLACK = '\033[30m'
@@ -94,7 +94,7 @@ def parallel_brute_force_crack(target, charset, max_length):
 def log_results(password, attempts, elapsed, speed):
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
-    timestamp = datetime.now().strftime("%Yy-%mm-%dd_%H-%M-%S")
+    timestamp = dt.now().strftime("%Yy-%mm-%dd_%H-%M-%S")
     base_filename = f"log_{password}_{timestamp}.log"
     log_path = os.path.join(log_dir, base_filename)
     count = 1
