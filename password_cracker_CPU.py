@@ -1,5 +1,5 @@
 import itertools, os, string, time
-from multiprocessing import Pool, cpu_count, get_context
+from multiprocessing import cpu_count, get_context
 from datetime import datetime
 
 class style():
