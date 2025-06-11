@@ -23,7 +23,7 @@ def worker(args):
         suffix_len = length - len(prefix)
         if suffix_len == 0:
             guess = prefix
-            attempts += 1
+            attempts += 1 # Check if prefix is the target
             if guess == target_str:
                 return guess, attempts
         else:
