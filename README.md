@@ -52,7 +52,7 @@ python password_cracker_GPU.py
 - Requires a supported NVIDIA GPU and CuPy. 
 - Progress and results are displayed and logged. 
 
->[!NOTE]
+>[!TIP]
 >I would suggest adding `python` and `pip` to `PATH` in system variables, also it will prompt you to add the directory for the scripts to `PATH` aswell.
 
 >[!WARNING]
