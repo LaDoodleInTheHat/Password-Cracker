@@ -1,0 +1,41 @@
+{
+    "liveServer.settings.CustomBrowser": "chrome",
+    "liveServer.settings.donotShowInfoMsg": true,
+    "explorer.confirmDelete": false,
+    "files.autoSave": "afterDelay",
+    "editor.accessibilitySupport": "off",
+    "explorer.confirmDragAndDrop": false,
+    "liveServer.settings.donotVerifyTags": true,
+    "security.workspace.trust.untrustedFiles": "open",
+    "workbench.editor.empty.hint": "hidden",
+    "workbench.preferredHighContrastColorTheme": "Default Dark Modern",
+    "workbench.editorAssociations": {
+        "*.copilotmd": "vscode.markdown.preview.editor",
+        "*.exe": "default",
+        "*.VSIXPackage": "default"
+    },
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": true,
+        "markdown": false,
+        "scminput": false
+    },
+    "git.enableSmartCommit": true,
+    "diffEditor.hideUnchangedRegions.enabled": true,
+    "git.confirmSync": false,
+    "githubPullRequests.createOnPublishBranch": "never",
+    "C_Cpp.default.compilerPath": "c:\\mingw64\\bin\\g++.exe",
+    "git.ignoreMissingGitWarning": true,
+    "editor.fontSize": 12.75,
+    "editor.cursorBlinking": "expand",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.cursorSurroundingLines": 10,
+    "editor.cursorSurroundingLinesStyle": "all",
+    "editor.cursorWidth": 2,
+    "editor.fontFamily": "'JetBrains Mono'",
+    "editor.fontLigatures": true,
+    "editor.minimap.autohide": true,
+    "editor.minimap.renderCharacters": false,
+    "workbench.colorTheme": "GitHub Dark Default"
+} 
