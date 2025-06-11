@@ -102,7 +102,7 @@ This tool is intended for legal, ethical, and educational use only. The authors 
 
 ## Credits
 
-- @MEGA-COOKIE-MONSTER for coding it.
+- @LaDoodleInTheHat for coding it.
 - @Takadoo75 for inspiring me to build it and for the password generator file.
 
 # Have Fun! 🎉 - LaDoodleInTheHat / Takadoo75
