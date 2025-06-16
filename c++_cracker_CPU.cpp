@@ -58,8 +58,6 @@ void print_progress(size_t total_attempts, size_t overall_total, double elapsed)
     cout.flush();
 }
 
-//hello
-
 void worker(const string& target, const string& charset, int length, size_t prefix_len,
             size_t start_idx, size_t end_idx, atomic<size_t>& total_attempts,
             size_t overall_total, chrono::steady_clock::time_point start_time,
