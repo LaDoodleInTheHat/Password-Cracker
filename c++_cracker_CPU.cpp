@@ -1,4 +1,4 @@
-#include <iostream>
+#include <iostream>, <fstream>
 #include <fstream>
 #include <vector>
 #include <thread>
@@ -13,7 +13,6 @@ using json = nlohmann::json;
 
 using namespace std;
 
-// Style class
 struct Style {
     static constexpr const char* RESET = "\033[0m";
     static constexpr const char* RED = "\033[31m";
