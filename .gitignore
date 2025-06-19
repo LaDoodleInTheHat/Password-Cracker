@@ -4,3 +4,4 @@ encrypted-password.bin
 /.vscode/
 desktop.ini
 include/
+thing.py
